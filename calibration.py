@@ -75,6 +75,6 @@ img = cv2.drawChessboardCorners(img, (nx,ny), corners, ret)
 undist = lu.undistort(img, calib_params)
 lu.plot_img_grid([img,undist],['Original','Undistorted'], cols=2, figsize=(7,3))
 
-img = mpimg.imread('.\\test_images\\testc3.jpg')
+img = mpimg.imread('.\\test_images\\test1.jpg')
 undist = lu.undistort(img, calib_params)
 lu.plot_img_grid([img,undist],['Original','Undistorted'], cols=2, figsize=(7,3))

@@ -369,7 +369,7 @@ class Lane():
         l_fitx - x indices fitted fot left line
         r_fitx - x indices fitted fot right line
         '''
-        return (r_fitx[index] - l_fitx[index])/2
+        return (r_fitx[index] - l_fitx[index])
 
     def cur_width_px(self, index):
         '''
@@ -670,4 +670,4 @@ class Pipeline():
 calib_params_path='.\\camera_cal\\calib_params.p'
 persp_params_path='.\\camera_cal\\persp_params.p'        
 pipeline = Pipeline(calib_params_path, persp_params_path, 3.7/615, 3/118)
-pipeline.process_video('project_video.mp4', 'project_result1.mp4')
+pipeline.process_video('project_video.mp4', 'project_result.mp4')

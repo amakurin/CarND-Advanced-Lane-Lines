@@ -556,7 +556,7 @@ class Lane():
         return self.is_state_good() and self.can_average()
 
     def calc_width_px(self, l_fitx, r_fitx, index):
-        return (r_fitx[index] - l_fitx[index])/2
+        return (r_fitx[index] - l_fitx[index])
 
     def cur_width_px(self, index):
         result = None
@@ -565,7 +565,7 @@ class Lane():
         return result
     
     def cur_vehicle_pos_px(self):
-        return (self.frame_width/2 - (self.l_fitx_cur[-1] + self.cur_width_px(-1)))
+        return (self.frame_width/2 - (self.l_fitx_cur[-1] + self.cur_width_px(-1)/2))
     
     def avg_width_px(self, index):
         result = None

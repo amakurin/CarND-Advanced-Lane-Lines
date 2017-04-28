@@ -172,7 +172,7 @@ As i mentioned above i used two modes of searching pixels corresponding to lane 
 
 Additionaly i implemented prediction mode, which is used when fitted polynomials didn't pass sanity cheks. Predictions were done by the same method as averaging.
 
-My sanity checks includes checking top and bottom widths of lane are reasonable: fit the frame, and do not deviate from average values for more then 10% (main.py, lines 207 to 249). 
+My sanity checks includes checking that top and bottom widths of lane are reasonable: fit the frame, and do not deviate from average values for more then 10% (main.py, lines 207 to 249). 
 
 The code for high-level algorithm of lines detection, including mode selection, sanity checks and state reset is contained in file main.py (lines 251 to 292)
 
@@ -210,4 +210,4 @@ And for harder challenge video, i guess, "road is a plane" assumption does not e
 
 So that all leads me to thoughts about dynamic perspective trasformation calculation. But here is sort of "chicken-egg" problem. To detect ROI for transformation estimation i'll need lane lines or, at least vanishing points. 
 
-So here is the huge field of research for me. My first guess her is to look to "structure for motion" methods or similar methods of 3D scene estimation. Stereo vision looks promising as well.
+So here is the huge field of research for me. My first guess her is to look to "structure for motion" methods or similar methods of 3D scene estimation. Stereo vision looks promising as well, but does not meets project requirements - only one camera at my disposal.
