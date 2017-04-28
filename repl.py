@@ -297,7 +297,7 @@ def thresh_grad_x(int_chan, roi_mask, gauss_kernel=3, sobel_kernel=3, low_tresho
     sx_mask = cv2.inRange(sx, low_treshold, 255) & cv2.inRange(int_chan, mean+std, 255)
     return sx_mask
 
-ppp = '.\\test_images\\frame-0.jpg'#testc3 testch13 test1 straight_lines2.jpg frame-545 532 484 612 520
+ppp = '.\\test_images\\frame-532.jpg'#testc3 testch13 test1 straight_lines2.jpg frame-545 532 484 612 520
     
 def pipeline_v3(img, roi_mask):
     res_mask = np.zeros(img.shape[:2],np.uint8)
@@ -780,7 +780,7 @@ class Pipeline():
         result = self.side_stack_imgs([result, np.dstack([binarized]*3),
                                        self.draw_finding_process(warped)])
         result = self.lane.draw_info(result,(970, 380))        
-        #lu.plot_img_grid([result], rows=1, cols=1, figsize=(7,3))
+        lu.plot_img_grid([result], rows=1, cols=1, figsize=(7,3))
         self.lane = new_lane
         return result     
         
@@ -802,7 +802,7 @@ persp_params = lu.load(persp_params_path)
 
 pipeline = Pipeline(calib_params_path, persp_params_path, 3.7/615, 3/118)
 #print(pipeline.left_line.keep_n_fits)  
-#result = pipeline.process_frame(img)
+result = pipeline.process_frame(img)
 #pipeline.process_video('project_video.mp4', 'test40.mp4')
 #pipeline.process_video('challenge_video.mp4', 'test40c.mp4')
 
@@ -818,8 +818,8 @@ img = lu.undistort(img, calib_params)
 #s = hsv[:,:,1]
 #v = hsv[:,:,2]
 #
-res = pipeline_v3(img, r_mask)
-lu.plot_img_grid([img,res],cmaps=[None,'gray'], rows=1, cols=2, figsize=(7,3))
+#res = pipeline_v3(img, r_mask)
+#lu.plot_img_grid([img,res],cmaps=[None,'gray'], rows=1, cols=2, figsize=(7,3))
 
 #bin = pipeline_v3(img, r_mask)
 #bin = bin & r_mask

@@ -17,7 +17,13 @@ The goals / steps of this project are the following:
 [undistortedSample]: ./examples/undistort_sample.png "Undistorted Sample"
 [thresholding1]: ./examples/thresholding1.png "Binary Example 1"
 [thresholding2]: ./examples/thresholding2.png "Binary Example 2"
-[perspective1]: ./examples/perspective1.png "Perspective"
+[perspective0]: ./examples/perspective1.png "Perspective"
+[perspective1]: ./examples/perspective1.png "Perspective Example 1"
+[perspective2]: ./examples/perspective2.png "Perspective Example 2"
+[fit1]: ./examples/perspective1.png "Fit Example 1"
+[fit2]: ./examples/perspective2.png "Fit Example 2"
+[result1]: ./examples/result1.png "Result Example 1"
+[result2]: ./examples/result2.png "Result Example 2"
 [video1]: ./project_result.mp4 "Video"
 
 My project includes the following files:
@@ -56,15 +62,16 @@ I precalculated camera matrix and distortion coefficients once and saved them to
 
 #### 1. Provide an example of a distortion-corrected image.
 
-To demonstrate this step, I will describe how I apply the distortion correction to one of the test images like this one:
+For distortion correction i used cv2.undistort() function with previously calculated camera parameters (lines 24 to 32 of file labutils.py) 
+
+Here is example of applying distortion correction:
 
 ![Undistorted Sample][undistortedSample]
 
-I used cv2.undistort() function with preloaded camera parameters (lines 24 to 32 of file labutils.py) 
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I used a combination of fixed range color threshoding, with adaptive thresholding of value and saturation channels of image converted in HSV color space.
+I used a combination of fixed range color threshoding, with adaptive thresholding of value and saturation channels of image in HSV color space.
 
 Core idea of my adaptive thresholding routine, is analysis of trapezoidal region of interest (ROI) which is mainly contains pixels corresponding to road surface. 
 Most of these pixels with lower intensity are corresponding to pavement, and few of them corresponding to marking and usually have higher intensity.
@@ -85,7 +92,7 @@ Here are examples of my output for this step.  (note: this is not actually from 
 #### 3. Describe how (and identify where in your code) you performed a perspective transform and provide an example of a transformed image.
 
 I used single pair of direct and inverse perspective transformation matrices for whole video. 
-I precalculated this matrices once and store them in a file to later use (lines 14 to 19 of file perspective.py). 
+I precalculated this matrices once and save them in a file to later use similary as for calibration parameters (lines 14 to 19 of file perspective.py). 
 For this step i used one undistorted frame with straight lines from the project video. I chose centered trapezoid points as source points of transformation, and centered rectangle points as destination point.
 I chose size of trapezoid such that perspective transform turns lane lines of frame to roughly parallel vertical lines.
 I chose size of destination rectangle such that proportions in x and y directions were somewhat close to real, to decrease errors in calculations.
@@ -101,13 +108,19 @@ This resulted in the following source and destination points:
 I verified that my perspective transform was working as expected by drawing the source trapezoid onto a test image and its warped counterpart with destination rectangle to verify that the lines appear parallel in the warped image.
 Here is source trapezoid drawn with red color, and target rectangle drawn with cyan.
 
+![perspective0][perspective0]
+
+Here are examples of perspective transformation applied to thresholded images from previus step:
 ![perspective1][perspective1]
+![perspective2][perspective2]
+
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
 Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
 
-![alt text][image5]
+![fit1][fit1]
+![fit2][fit2]
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
@@ -117,7 +130,8 @@ I did this in lines # through # in my code in `my_other_file.py`
 
 I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
 
-![alt text][image6]
+![result1][result1]
+![result2][result2]
 
 ---
 
