@@ -384,7 +384,7 @@ class Lane():
         '''
         Calculates vehicle position in pixels relative to center of lane 
         '''
-        return (self.frame_width/2 - (self.l_fitx_cur[-1] + self.cur_width_px(-1)))
+        return (self.frame_width/2 - (self.l_fitx_cur[-1] + self.cur_width_px(-1)/2))
     
     def avg_width_px(self, index):
         '''
@@ -562,7 +562,7 @@ class Lane():
 
     def draw_lane(self, frame, persp_params):
         '''
-        Draws lane unwarped lane on frame
+        Draws unwarped lane on frame
         '''
         result = frame
         if self.is_state_good():
@@ -670,4 +670,4 @@ class Pipeline():
 calib_params_path='.\\camera_cal\\calib_params.p'
 persp_params_path='.\\camera_cal\\persp_params.p'        
 pipeline = Pipeline(calib_params_path, persp_params_path, 3.7/615, 3/118)
-pipeline.process_video('project_video.mp4', 'project_result.mp4')
+pipeline.process_video('project_video.mp4', 'project_result1.mp4')

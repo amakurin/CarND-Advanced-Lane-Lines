@@ -22,6 +22,8 @@ The goals / steps of this project are the following:
 [perspective2]: ./examples/perspective2.png "Perspective Example 2"
 [fit1]: ./examples/fit1.png "Fit Example 1"
 [fit2]: ./examples/fit2.png "Fit Example 2"
+[curvGen]: ./examples/curvGen.png "Curv generic formula"
+[curv2ndop]: ./examples/curv2ndop.png "Curv formula for 2nd order poly"
 [result1]: ./examples/result1.png "Result Example 1"
 [result2]: ./examples/result2.png "Result Example 2"
 [video1]: ./project_result.mp4 "Video"
@@ -56,7 +58,7 @@ I then used the output `objpoints` and `imgpoints` to compute the camera calibra
 
 ![Undistorted Chess][undistortedChess]
 
-I precalculated camera matrix and distortion coefficients once and saved them to file. Later i load this data before video or single frame processing.
+I precalculated camera matrix and distortion coefficients once and saved them to file. Later i loaded this data before video or single frame processing.
 
 ### Pipeline (single images)
 
@@ -71,14 +73,14 @@ Here is example of applying distortion correction:
 
 #### 2. Describe how (and identify where in your code) you used color transforms, gradients or other methods to create a thresholded binary image.  Provide an example of a binary image result.
 
-I used a combination of fixed range color threshoding, with adaptive thresholding of value and saturation channels of image in HSV color space.
+I used a combination of fixed range color threshoding, with adaptive thresholding of 'value' and 'saturation' channels of image in HSV color space.
 
-Core idea of my adaptive thresholding routine, is analysis of trapezoidal region of interest (ROI) which is mainly contains pixels corresponding to road surface. 
-Most of these pixels with lower intensity are corresponding to pavement, and few of them corresponding to marking and usually have higher intensity.
+Core idea of my adaptive thresholding routine, is an analysis of trapezoidal region of interest (ROI) which is mainly contains pixels corresponding to road surface. 
+Most of these pixels with lower intensity corresponds to pavement, and few of them, that corresponds to markings, usually have higher intensity.
 I build histogram of intencity of this ROI, and find first valley after maximum peak.
 This can be done in many ways, i implemented two and chose one of them that performed better for project video. The code of intencity thresholding is contained in file main.py, lines 12 to 66.
 
-Applying this routine to V and S channel of HSV converted image i got two masks. 
+Applying this routine to V and S channel of HSV converted image, i got two masks. 
 I got another two for white and yellow colors: for white color i used RGB range [180,180,180]-[255,255,255], for yellow color i used range 15-25 on hue channel.
 Then i took conjunction of V mask with white mask, and S mask with yellow mask, and disjunction of results.
 I didn't use gradient thresholding because it gave no additional information on project video, but additional noise.
@@ -106,7 +108,7 @@ This resulted in the following source and destination points:
 |  218, 690     | 320, 719      |
 
 I verified that my perspective transform was working as expected by drawing the source trapezoid onto a test image and its warped counterpart with destination rectangle to verify that the lines appear parallel in the warped image.
-Here is source trapezoid drawn with red color, and target rectangle drawn with cyan.
+Here is source trapezoid drawn with red color, and destination rectangle drawn with cyan.
 
 ![perspective0][perspective0]
 
@@ -134,11 +136,28 @@ Here are examples of found pixels (reds for left line, blues for right line) and
 
 #### 5. Describe how (and identify where in your code) you calculated the radius of curvature of the lane and the position of the vehicle with respect to center.
 
-I did this in lines # through # in my code in `my_other_file.py`
+I calculated vehicle position with respect to center of the lane as difference in pixels between lane center and frame center (asuming that camera was fixed on center plane of the car) multiplied by `meters per pixel` factor in x dimesion.
+
+Code of vehicle position calculation is in line 387 of `main.py`
+
+To calculate the radius of curvature, i applied general formula
+
+![curvGen][curvGen]
+
+to second order poynomial, which gives
+
+![curv2ndop][curv2ndop]
+
+where A and B are first and second polynomial coefficients respectively.
+
+I applied this formula to fitted 2nd order polynomials of each line. 
+
+Code of applying formula is in line 416 of `main.py`
+
 
 #### 6. Provide an example image of your result plotted back down onto the road such that the lane area is identified clearly.
 
-I implemented this step in lines # through # in my code in `yet_another_file.py` in the function `map_lane()`.  Here is an example of my result on a test image:
+I implemented this step in lines 569 through 583 in my code in `main.py` in the function `draw_lane()`.  Here is an example of my result on a frames from previous steps:
 
 ![result1][result1]
 ![result2][result2]
@@ -171,16 +190,24 @@ Actually my goal was to implement pipeline robust enough to process all provided
 
 ##### Thresholding 
 Experiments with different videos showed that fixed range thresholding will not work with different cases. Shadows, light conditions, pavement changings, all that gives unacceptable results with fixed range thresholding.
+
 Gradient thresholding sometimes can give aditional information but it is always noisy, what leads to problems with polynomial fitting after perspective transformation. Too wide line gives too much space for polynomial to fit.
+
 Thats why i spent most of project time budget implementing different adaptive thresholding methods. But experimenting with these methods i found that i can perform very well one whole one video and most of others, but not for all special cases simultaniously.
+
 Method that works well on simple cases + tunnel, will not work on pavement changings and so on.
 Actually, i found that it is hard for me to even formulate the general optimisation task fitting all possible cases. 
+
 And it looks pretty much like, for example, task of detection of cat on images.
-So my guess for going further here is to try CNN for lane-lines detection. 
+
+So, i think, my best guess for going further here is to try CNN for lane-lines detection. 
  
 ##### Perspective transformation 
 Static perspective transformation works rather satisfactorily with one video. Although when car moves from one pavement to another it jumps a little, and on these few frames static transformartion works really bad because of changed view angle of camera with respect to road plane.
-But the same perspective transformation, calculated for project video, doesn't work with challenge video.
+
+But the same perspective transformation, calculated for project video, doesn't work with challenge video. 
 And for harder challenge video, i guess, "road is a plane" assumption does not even holds.
+
 So that all leads me to thoughts about dynamic perspective trasformation calculation. But here is sort of "chicken-egg" problem. To detect ROI for transformation estimation i'll need lane lines or, at least vanishing points. 
-So here is the huge field of research for me. My first guesses is to look to "structure for motion" methods or similar methods of 3D scene estimation. Stereo vision looks promising as well.
+
+So here is the huge field of research for me. My first guess her is to look to "structure for motion" methods or similar methods of 3D scene estimation. Stereo vision looks promising as well.
