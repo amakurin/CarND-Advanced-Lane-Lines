@@ -110,14 +110,24 @@ Here is source trapezoid drawn with red color, and target rectangle drawn with c
 
 ![perspective0][perspective0]
 
-Here are examples of perspective transformation applied to thresholded images from previus step:
+Here are examples of perspective transformation applied to thresholded images from previous step:
+
 ![perspective1][perspective1]
 ![perspective2][perspective2]
 
 
 #### 4. Describe how (and identify where in your code) you identified lane-line pixels and fit their positions with a polynomial?
 
-Then I did some other stuff and fit my lane lines with a 2nd order polynomial kinda like this:
+I used two modes of searching for pixels corresponding to lane lines. First - full search with sliding window - was used initially and when found lines didn't pass sanity checks.
+Second - targeted search of nonzero pixels in some neighborhood of lines found on previous frame.
+
+Full search starts by calculation of histogram of bottom half of frame, to find line centers as maximum values for left and right halfs of histogram.
+Then sliding windows are placed at these centers at the bottom of frame and are moved up to top of frame, shifting centers to the mean x indices of nonzero pixels withing windows.
+The code of this algorithm is contained in file main.py, lines 95 to 153.
+The code of targeted search algorithm is contained in file main.py, lines 155 to 172.
+
+I used numpy polyfit function to fit 2nd order polynomials to candidate pixels found by full or targeted search ( main.py, lines 188 to 199).  
+Here are examples of found pixels (reds for left line, blues for right line) and fitted polynomials:
 
 ![fit1][fit1]
 ![fit2][fit2]
@@ -139,6 +149,16 @@ I implemented this step in lines # through # in my code in `yet_another_file.py`
 
 #### 1. Provide a link to your final video output.  Your pipeline should perform reasonably well on the entire project video (wobbly lines are ok but no catastrophic failures that would cause the car to drive off the road!).
 
+As i mentioned above i used two modes of searching pixels corresponding to lane lines. If fitted polynomials were considered good, i used weighted (linear) averaging over 3 last fits to decrease jitter (main.py, lines 399 to 410).
+
+Additionaly i implemented prediction mode, which is used when fitted polynomials didn't pass sanity cheks. Predictions were done by the same method as averaging.
+
+My sanity checks includes checking top and bottom widths of lane are reasonable: fit the frame, and do not deviate from average values for more then 10% (main.py, lines 207 to 249). 
+
+The code for high-level algorithm of lines detection, including mode selection, sanity checks and state reset is contained in file main.py (lines 251 to 292)
+
+I implemented Lane class to accumulate measurements from frame to frame, calclulate lane parameters and draw them on resulting frames (main.py, lines 314 to 668)
+
 Here's a [link to my video result](./project_result.mp4)
 
 ---
@@ -147,5 +167,20 @@ Here's a [link to my video result](./project_result.mp4)
 
 #### 1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
-Here I'll talk about the approach I took, what techniques I used, what worked and why, where the pipeline might fail and how I might improve it if I were going to pursue this project further.  
+Actually my goal was to implement pipeline robust enough to process all provided videos including harder challenge. But i faced few issues.
 
+##### Thresholding 
+Experiments with different videos showed that fixed range thresholding will not work with different cases. Shadows, light conditions, pavement changings, all that gives unacceptable results with fixed range thresholding.
+Gradient thresholding sometimes can give aditional information but it is always noisy, what leads to problems with polynomial fitting after perspective transformation. Too wide line gives too much space for polynomial to fit.
+Thats why i spent most of project time budget implementing different adaptive thresholding methods. But experimenting with these methods i found that i can perform very well one whole one video and most of others, but not for all special cases simultaniously.
+Method that works well on simple cases + tunnel, will not work on pavement changings and so on.
+Actually, i found that it is hard for me to even formulate the general optimisation task fitting all possible cases. 
+And it looks pretty much like, for example, task of detection of cat on images.
+So my guess for going further here is to try CNN for lane-lines detection. 
+ 
+##### Perspective transformation 
+Static perspective transformation works rather satisfactorily with one video. Although when car moves from one pavement to another it jumps a little, and on these few frames static transformartion works really bad because of changed view angle of camera with respect to road plane.
+But the same perspective transformation, calculated for project video, doesn't work with challenge video.
+And for harder challenge video, i guess, "road is a plane" assumption does not even holds.
+So that all leads me to thoughts about dynamic perspective trasformation calculation. But here is sort of "chicken-egg" problem. To detect ROI for transformation estimation i'll need lane lines or, at least vanishing points. 
+So here is the huge field of research for me. My first guesses is to look to "structure for motion" methods or similar methods of 3D scene estimation. Stereo vision looks promising as well.
